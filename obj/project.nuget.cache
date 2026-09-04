@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "tds/Hzu/Ibg=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Numan\\TeknikServisOtomasyonu\\TeknikServisOtomasyonu.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Numan\\.nuget\\packages\\microsoft.aspnetcore.app.internal.assets\\10.0.11\\microsoft.aspnetcore.app.internal.assets.10.0.11.nupkg.sha512"
+  ],
+  "logs": []
+}

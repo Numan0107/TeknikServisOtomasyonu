@@ -1,0 +1,217 @@
+﻿@page "/"
+@rendermode InteractiveServer
+
+<div class="container mt-4" style="max-width: 1000px; font-family: sans-serif;">
+    <h2 class="text-center mb-4">🛠️ Teknik Servis ve Arıza Takip Otomasyonu</h2>
+
+    <!-- GÜN SONU PERFORMANS VE MALİ RAPOR PANELİ -->
+    <div class="row text-center mb-4">
+        <div class="col-md-4">
+            <div class="p-3 bg-light border rounded shadow-sm">
+                <h5>⏳ Bekleyen Cihaz</h5>
+                <h3 class="text-warning">@BekleyenCihazSayisi</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 bg-light border rounded shadow-sm">
+                <h5>✅ Tamamlanan Tamir</h5>
+                <h3 class="text-success">@TamamlananCihazSayisi</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 bg-dark text-white border rounded shadow-sm">
+                <h5>📈 Toplam Ciro / Kasa</h5>
+                <h3 class="text-info">@ToplamCiro.ToString("C2")</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- YENİ ARIZA KAYIT FORMU -->
+    <div class="card p-4 mb-4 shadow-sm">
+        <h4 class="mb-3">📝 Yeni Arıza / Cihaz Kaydı</h4>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <input type="text" class="form-control" placeholder="Müşteri Adı Soyadı" @bind="MusteriAdiInput" oninput="this.value = this.value.replace(/[^a-zA-ZçÇğĞıİöÖşŞüÜ ]/g, '')" />
+            </div>
+            <div class="col-md-4">
+                <input type="tel" class="form-control" placeholder="Telefon Numarası " @bind="TelefonInput" @oninput="TelefonFormatla" maxlength="11" />
+            </div>
+            <div class="col-md-4">
+                <input type="text" class="form-control" placeholder="Cihaz Modeli (Örn: iPhone 14)" @bind="CihazModeliInput" />
+            </div>
+            <div class="col-md-6">
+                <input type="text" class="form-control" placeholder="Arıza Detayı / Şikayet" @bind="ArizaDetayiInput" />
+            </div>
+            <div class="col-md-3">
+    <label class="form-label text-muted small fw-bold mb-1">🔧 İşçilik Ücreti (TL)</label>
+    <input type="number" class="form-control" @bind="IscilikInput" />
+</div>
+<div class="col-md-3">
+    <label class="form-label text-muted small fw-bold mb-1">📦 Parça Maliyeti (TL)</label>
+    <input type="number" class="form-control" @bind="ParcaInput" />
+</div>
+
+            <div class="col-md-12 text-end">
+                <button class="btn btn-primary px-5" @onclick="CihazKaydet">Servise Kabul Et</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TEKNİK SERVİS İŞ AKIŞ LİSTESİ -->
+    <div class="card p-4 shadow-sm">
+        <h4 class="mb-3">📋 Servisteki Cihazlar ve Durum Yönetimi</h4>
+        @if (Cihazlar.Count == 0)
+        {
+            <p class="text-muted text-center">Serviste işlem gören cihaz bulunmamaktadır.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Müşteri / Cihaz</th>
+                            <th>Arıza Şikayeti</th>
+                            <th>Mali Durum</th>
+                            <th>Güncel Durum</th>
+                            <th>Durum Güncelle</th>
+                            <th>Aksiyon</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cihaz in Cihazlar)
+                        {
+                            <tr>
+                                <td>
+                                   <div class="fw-bold mb-1">👤 @cihaz.MusteriAdi</div>
+                                   <div class="text-primary small mb-1" style="font-weight: 500;">📱 @cihaz.CihazModeli</div>
+                                   <div class="text-muted small">📞 @cihaz.Telefon</div>
+                                </td>
+                                <td>@cihaz.ArizaDetayi</td>
+                               <td>
+                                   <div class="small text-muted">🔧 İşçilik: @cihaz.IscilikUcreti.ToString("C2")</div>
+                                    <div class="small text-muted mb-1">📦 Parça: @cihaz.ParcaMaliyeti.ToString("C2")</div>
+                                     <div class="fw-bold text-dark border-top pt-1" style="font-size: 15px;">💰 Toplam: @cihaz.ToplamUcret.ToString("C2")</div>
+                                  </td>
+                                <td>
+                                    <span class="badge @ObtainDurumBadgeClass(cihaz.Durum)">
+                                        @cihaz.Durum
+                                    </span>
+                                </td>
+                                <td>
+                                    <!-- Durum Yönetimi (State Machine) Butonları -->
+                                    <select class="form-select form-select-sm" value="@cihaz.Durum" @onchange="(e) => DurumDegistir(cihaz.Id, e.Value?.ToString())">
+                                        <option value="Beklemede">⏳ Beklemede</option>
+                                        <option value="Tamir Ediliyor">🔧 Tamir Ediliyor</option>
+                                        <option value="Parça Bekliyor">📦 Parça Bekliyor</option>
+                                        <option value="Hazır">🎉 Hazır (Tamir Edildi)</option>
+                                        <option value="Teslim Edildi">🤝 Teslim Edildi</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => KayitSil(cihaz.Id)">❌ Sil</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private List<Cihaz> Cihazlar = new List<Cihaz>();
+    private int idSayac = 1;
+
+    // Form Girdi Değişkenleri
+    private string MusteriAdiInput { get; set; } = string.Empty;
+    private string TelefonInput { get; set; } = "0";
+    private string CihazModeliInput { get; set; } = string.Empty;
+    private string ArizaDetayiInput { get; set; } = string.Empty;
+    private decimal IscilikInput { get; set; }
+    private decimal ParcaInput { get; set; }
+
+    // Raporlama ve Hesaplama Motorları
+    private int BekleyenCihazSayisi => Cihazlar.Count(c => c.Durum != "Hazır" && c.Durum != "Teslim Edildi");
+    private int TamamlananCihazSayisi => Cihazlar.Count(c => c.Durum == "Hazır" || c.Durum == "Teslim Edildi");
+    private decimal ToplamCiro => Cihazlar.Where(c => c.Durum == "Teslim Edildi").Sum(c => c.ToplamUcret);
+
+private void TelefonFormatla(ChangeEventArgs e)
+{
+    var girdi = e.Value?.ToString() ?? "";
+    
+    // Sadece sayıları filtrele
+    var sadeceSayi = new string(girdi.Where(char.IsDigit).ToArray());
+
+    // Eğer boşsa veya kullanıcı sıfırı sildiyse otomatik 0 yap
+    if (sadeceSayi.Length < 1)
+    {
+        TelefonInput = "0";
+    }
+    // Kullanıcı yazmaya başladıysa ama ilk hane 0 değilse başına 0 zorla
+    else if (!sadeceSayi.StartsWith("0"))
+    {
+        TelefonInput = "0" + sadeceSayi;
+    }
+    else
+    {
+        TelefonInput = sadeceSayi;
+    }
+}
+
+
+    private void CihazKaydet()
+    {
+        if (string.IsNullOrWhiteSpace(MusteriAdiInput) || string.IsNullOrWhiteSpace(CihazModeliInput)) return;
+
+        var yeniCihaz = new Cihaz
+        {
+            Id = idSayac++,
+            MusteriAdi = MusteriAdiInput,
+            Telefon = TelefonInput,
+            CihazModeli = CihazModeliInput,
+            ArizaDetayi = ArizaDetayiInput,
+            IscilikUcreti = IscilikInput,
+            ParcaMaliyeti = ParcaInput,
+            Durum = "Beklemede"
+        };
+
+        Cihazlar.Add(yeniCihaz);
+
+        // Formu temizle
+        MusteriAdiInput = string.Empty;
+        TelefonInput = string.Empty;
+        CihazModeliInput = string.Empty;
+        ArizaDetayiInput = string.Empty;
+        IscilikInput = 0;
+        ParcaInput = 0;
+    }
+
+    private void DurumDegistir(int id, string? yeniDurum)
+    {
+        if (string.IsNullOrEmpty(yeniDurum)) return;
+        var cihaz = Cihazlar.FirstOrDefault(c => c.Id == id);
+        if (cihaz != null)
+        {
+            cihaz.Durum = yeniDurum;
+        }
+    }
+
+    private void KayitSil(int id)
+    {
+        var silinecek = Cihazlar.FirstOrDefault(c => c.Id == id);
+        if (silinecek != null) Cihazlar.Remove(silinecek);
+    }
+
+    // Durumlara göre renkli badge sınıfları atayan yardımcı görsel metot
+    private string ObtainDurumBadgeClass(string durum) => durum switch
+    {
+        "Beklemede" => "bg-secondary text-white",
+        "Tamir Ediliyor" => "bg-warning text-dark",
+        "Parça Bekliyor" => "bg-info text-dark",
+        "Hazır" => "bg-primary text-white",
+        "Teslim Edildi" => "bg-success text-white",
+        _ => "bg-light text-dark"
+    };
+}
