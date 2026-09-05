@@ -83,3 +83,4 @@ C:\Users\Numan\TeknikServisOtomasyonu\obj\Debug\net10.0\refint\TeknikServisOtoma
 C:\Users\Numan\TeknikServisOtomasyonu\obj\Debug\net10.0\TeknikServisOtomasyonu.pdb
 C:\Users\Numan\TeknikServisOtomasyonu\obj\Debug\net10.0\TeknikServisOtomasyonu.genruntimeconfig.cache
 C:\Users\Numan\TeknikServisOtomasyonu\obj\Debug\net10.0\ref\TeknikServisOtomasyonu.dll
+C:\Users\Numan\TeknikServisOtomasyonu\obj\Debug\net10.0\TeknikServisOtomasyonu.sourcelink.json

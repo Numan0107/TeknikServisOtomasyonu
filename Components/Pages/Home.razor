@@ -4,7 +4,6 @@
 <div class="container mt-4" style="max-width: 1000px; font-family: sans-serif;">
     <h2 class="text-center mb-4">🛠️ Teknik Servis ve Arıza Takip Otomasyonu</h2>
 
-    <!-- GÜN SONU PERFORMANS VE MALİ RAPOR PANELİ -->
     <div class="row text-center mb-4">
         <div class="col-md-4">
             <div class="p-3 bg-light border rounded shadow-sm">
@@ -26,7 +25,7 @@
         </div>
     </div>
 
-    <!-- YENİ ARIZA KAYIT FORMU -->
+
     <div class="card p-4 mb-4 shadow-sm">
         <h4 class="mb-3">📝 Yeni Arıza / Cihaz Kaydı</h4>
         <div class="row g-3">
@@ -57,7 +56,7 @@
         </div>
     </div>
 
-    <!-- TEKNİK SERVİS İŞ AKIŞ LİSTESİ -->
+    
     <div class="card p-4 shadow-sm">
         <h4 class="mb-3">📋 Servisteki Cihazlar ve Durum Yönetimi</h4>
         @if (Cihazlar.Count == 0)
@@ -124,7 +123,7 @@
     private List<Cihaz> Cihazlar = new List<Cihaz>();
     private int idSayac = 1;
 
-    // Form Girdi Değişkenleri
+    
     private string MusteriAdiInput { get; set; } = string.Empty;
     private string TelefonInput { get; set; } = "0";
     private string CihazModeliInput { get; set; } = string.Empty;
@@ -132,7 +131,7 @@
     private decimal IscilikInput { get; set; }
     private decimal ParcaInput { get; set; }
 
-    // Raporlama ve Hesaplama Motorları
+    
     private int BekleyenCihazSayisi => Cihazlar.Count(c => c.Durum != "Hazır" && c.Durum != "Teslim Edildi");
     private int TamamlananCihazSayisi => Cihazlar.Count(c => c.Durum == "Hazır" || c.Durum == "Teslim Edildi");
     private decimal ToplamCiro => Cihazlar.Where(c => c.Durum == "Teslim Edildi").Sum(c => c.ToplamUcret);
@@ -141,15 +140,15 @@ private void TelefonFormatla(ChangeEventArgs e)
 {
     var girdi = e.Value?.ToString() ?? "";
     
-    // Sadece sayıları filtrele
+    
     var sadeceSayi = new string(girdi.Where(char.IsDigit).ToArray());
 
-    // Eğer boşsa veya kullanıcı sıfırı sildiyse otomatik 0 yap
+    
     if (sadeceSayi.Length < 1)
     {
         TelefonInput = "0";
     }
-    // Kullanıcı yazmaya başladıysa ama ilk hane 0 değilse başına 0 zorla
+    
     else if (!sadeceSayi.StartsWith("0"))
     {
         TelefonInput = "0" + sadeceSayi;
@@ -179,7 +178,7 @@ private void TelefonFormatla(ChangeEventArgs e)
 
         Cihazlar.Add(yeniCihaz);
 
-        // Formu temizle
+        
         MusteriAdiInput = string.Empty;
         TelefonInput = string.Empty;
         CihazModeliInput = string.Empty;
@@ -204,7 +203,7 @@ private void TelefonFormatla(ChangeEventArgs e)
         if (silinecek != null) Cihazlar.Remove(silinecek);
     }
 
-    // Durumlara göre renkli badge sınıfları atayan yardımcı görsel metot
+    
     private string ObtainDurumBadgeClass(string durum) => durum switch
     {
         "Beklemede" => "bg-secondary text-white",
